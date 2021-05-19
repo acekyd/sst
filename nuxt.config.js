@@ -33,7 +33,15 @@ export default {
     '@nuxtjs/axios',
     // https://go.nuxtjs.dev/pwa
     '@nuxtjs/pwa',
+
+    // https://strapi.nuxtjs.org/
+    '@nuxtjs/strapi',
   ],
+
+  strapi: {
+    // Options
+    entities: ['trades'],
+  },
 
   // Axios module configuration: https://go.nuxtjs.dev/config-axios
   axios: {},
