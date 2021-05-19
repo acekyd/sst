@@ -1,34 +1,145 @@
 <template>
   <div class="container">
     <div>
-      <Logo />
       <h1 class="title">
         simple-spot-tracker
       </h1>
-      <div class="links">
-        <a
-          href="https://nuxtjs.org/"
-          target="_blank"
-          rel="noopener noreferrer"
-          class="button--green"
-        >
-          Documentation
-        </a>
-        <a
-          href="https://github.com/nuxt/nuxt.js"
-          target="_blank"
-          rel="noopener noreferrer"
-          class="button--grey"
-        >
-          GitHub
-        </a>
+      <p v-if="$strapi.user">
+        Logged in
+      </p>
+      <div v-else class="authentication__forms">
+        <div v-show="error" class="form__errors">
+          <p> Error(s): {{ error }} </p>
+        </div>
+        <div class="login">
+          <h2>Login</h2>
+          <form @submit="login">
+            <div>
+              <input v-model="email" class="form__input" type="email" placeholder="email" />
+            </div>
+            <div>
+              <input v-model="password" class="p-3 my-5 border w-full" type="password" placeholder="password" />
+            </div>
+            <div>
+              <button :disabled="identifier === '' || password === ''" class="button--green" type="submit">
+                Login
+              </button>
+            </div>
+          </form>
+        </div>
+        <div class="register">
+          <h2>Register</h2>
+          <form @submit="signup">
+            <div>
+              <input v-model="email" class="form__input" type="email" placeholder="email" />
+            </div>
+            <div>
+              <input v-model="username"  class="form__input" type="text" placeholder="username" />
+            </div>
+            <div>
+              <input v-model="password" class="form__input" type="password" placeholder="password"
+              />
+            </div>
+            <div>
+              <button class="button--green" type="submit">
+                Signup
+              </button>
+            </div>
+          </form>
+        </div>
       </div>
+
     </div>
   </div>
 </template>
 
 <script>
-export default {}
+export default {
+  data() {
+    return {
+      identifier: "",
+      email: "",
+      username: "",
+      password: "",
+      error: "",
+      loggedIn: false,
+      trades: [],
+    };
+  },
+
+  fetchOnServer: false,
+
+  async fetch() {
+    this.fetchTrades();
+  },
+
+  computed: {
+    user () {
+      console.log(this.$strapi.user);
+      return this.$strapi.user;
+    },
+  },
+
+  methods: {
+    async login(e) {
+      e.preventDefault();
+      if(this.email === '' || this.password === '') {
+        this.error = "All fields are required!"
+        return;
+      }
+      try {
+        const user = await this.$strapi.login({
+          identifier: this.identifier,
+          password: this.password,
+        })
+        console.log(user)
+        if (user !== null) {
+          this.error = ''
+          this.loggedIn = true;
+          this.fetchTrades();
+        }
+      } catch (error) {
+        this.error = 'Error in login credentials'
+      }
+    },
+
+    async signup(e) {
+      e.preventDefault();
+      if(this.email === '' || this.password === '' || this.username === '') {
+        this.error = "All fields are required!"
+        return;
+      }
+      try {
+        const newUser = await this.$strapi.register({
+          email: this.email,
+          username: this.username,
+          password: this.password,
+        })
+        console.log(newUser)
+        if (newUser !== null) {
+          this.error = ''
+          this.loggedIn = true;
+          this.fetchTrades();
+        }
+      } catch (error) {
+        this.error = error.message
+      }
+    },
+
+    async logout() {
+      await this.$strapi.logout();
+    },
+
+    async fetchTrades() {
+      if(this.user) {
+        const trades = await this.$strapi.$trades.find({'users_permissions_user.username': this.user.username });
+        console.log("Trades o", trades);
+        this.trades = trades;
+      } else return [];
+    }
+
+  }
+}
 </script>
 
 <style>
