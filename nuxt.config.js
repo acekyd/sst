@@ -36,6 +36,8 @@ export default {
 
     // https://strapi.nuxtjs.org/
     '@nuxtjs/strapi',
+
+    '@nuxtjs/vuetify',
   ],
 
   strapi: {

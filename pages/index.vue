@@ -6,24 +6,19 @@
       </h1>
       <div v-if="$strapi.user">
         Logged in
+        <button class="button--green" @click="logout()">
+          Logout
+        </button>
         <form @submit="importBinance">
           <input type="file" required class="form__input" accept=".xlsx, .csv" name="importBinance" id="importBinance" />
           <input type="submit" value="Import trades"/>
         </form>
-        <table>
-          <tr>
-            <th>Market</th>
-            <th>Amount</th>
-            <th>Principal</th>
-            <th>No of Trades.</th>
-          </tr>
-          <tbody>
-            <tr v-for="(item, index) in tradeMarketsData" :key="index">
-              <td>{{ index }}</td>
-              <td>{{ item.length }}</td>
-            </tr>
-          </tbody>
-        </table>
+        <v-data-table
+          :headers="headers"
+          :items="tabularData"
+          :items-per-page="20"
+          class="elevation-1"
+        ></v-data-table>
       </div>
       <div v-else class="authentication__forms">
         <div v-show="error" class="form__errors">
@@ -39,7 +34,7 @@
               <input v-model="password" class="p-3 my-5 border w-full" type="password" placeholder="password" />
             </div>
             <div>
-              <button :disabled="identifier === '' || password === ''" class="button--green" type="submit">
+              <button class="button--green" type="submit">
                 Login
               </button>
             </div>
@@ -66,7 +61,6 @@
           </form>
         </div>
       </div>
-
     </div>
   </div>
 </template>
@@ -77,7 +71,6 @@ import XLSX from 'xlsx';
 export default {
   data() {
     return {
-      identifier: "",
       email: "",
       username: "",
       password: "",
@@ -86,7 +79,20 @@ export default {
       trades: [],
       importedData: [],
       tradeMarketsData: {},
-      tabularData: {},
+      tabularData: [],
+      headers: [
+          {
+            text: 'Market',
+            align: 'start',
+            value: 'title',
+          },
+          { text: 'No of Trades.', value: 'noOfTrades' },
+          { text: 'Coin Amount', value: 'amount' },
+          { text: 'Principal (USDT)', value: 'principal' },
+          { text: 'Average Cost Basis (USDT)', value: 'coinCostBasis' },
+          { text: 'Total Buy (USDT)', value: 'totalBoughtCost' },
+          { text: 'Total Sold (USDT)', value: 'totalSoldCost' },
+      ]
     };
   },
 
@@ -112,7 +118,7 @@ export default {
       }
       try {
         const user = await this.$strapi.login({
-          identifier: this.identifier,
+          identifier: this.email,
           password: this.password,
         })
         console.log(user)
@@ -164,13 +170,11 @@ export default {
     processTradesData() {
       // this.$set(this.tradeMarketsData, 'trade', [1]);
       this.trades.forEach(trade => {
-        if(this.tradeMarketsData[trade.market] === undefined) {
-          this.$set(this.tradeMarketsData, trade.market, []);
+        if(this.tradeMarketsData[trade.coin] === undefined) {
+          this.$set(this.tradeMarketsData, trade.coin, []);
         }
-        this.tradeMarketsData[trade.market].push(trade);
+        this.tradeMarketsData[trade.coin].push(trade);
       });
-
-
 
       for (const [key, trades] of Object.entries(this.tradeMarketsData)) {
         let title = key;
@@ -178,6 +182,7 @@ export default {
         principal = 0,
         totalBoughtCost = 0,
         totalSoldCost = 0,
+        coinCostBasis = 0,
         noOfTrades = trades.length;
         trades.forEach(trade => {
           console.log(title, trade);
@@ -191,15 +196,28 @@ export default {
             principal -= parseFloat(trade.total);
             totalSoldCost += parseFloat(trade.total);
           }
+
+          coinCostBasis = parseFloat(principal/amount).toFixed(4);
         })
 
-        this.$set(this.tabularData, title, {
-          amount:amount,
-          principal,
-          totalBoughtCost,
-          totalSoldCost,
+        this.tabularData.push({
+          title,
+          amount: amount.toFixed(4),
+          principal: principal.toFixed(4),
+          totalBoughtCost: totalBoughtCost.toFixed(4),
+          totalSoldCost: totalSoldCost.toFixed(4),
           noOfTrades,
+          coinCostBasis,
         });
+
+        // this.$set(this.tabularData, title, {
+        //   title,
+        //   amount,
+        //   principal,
+        //   totalBoughtCost,
+        //   totalSoldCost,
+        //   noOfTrades,
+        // });
       }
     },
 
@@ -236,15 +254,23 @@ export default {
     },
 
     uploadData() {
-      console.log("I have been called");
+
+      // let supportedCurrencies = ['USDT', 'BUSD'];
+      // The code below is designed to only support these base currencies while
+      // I figure out the more complex things. BUSD and USDT are usually similar to each other.
       // Upload each entry to DB
       this.importedData.forEach(trade => {
         this.$strapi.$trades.create({
+          coin: trade.Market.substring(0, trade.Market.length-4),
+          base: trade.Market.substring(trade.Market.length-4, trade.Market.length),
           amount: trade.Amount,
           type: trade.Type,
           total: trade.Total,
           price: trade.Price,
           market: trade.Market,
+          purchaseDate: trade['Date(UDT)'],
+          fee: trade.Fee,
+          feeCoin: trade['Fee Coin'],
           users_permissions_user: this.user,
         });
       });
@@ -257,42 +283,4 @@ export default {
 </script>
 
 <style>
-.container {
-  margin: 0 auto;
-  min-height: 100vh;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  text-align: center;
-}
-
-.title {
-  font-family:
-    'Quicksand',
-    'Source Sans Pro',
-    -apple-system,
-    BlinkMacSystemFont,
-    'Segoe UI',
-    Roboto,
-    'Helvetica Neue',
-    Arial,
-    sans-serif;
-  display: block;
-  font-weight: 300;
-  font-size: 100px;
-  color: #35495e;
-  letter-spacing: 1px;
-}
-
-.subtitle {
-  font-weight: 300;
-  font-size: 42px;
-  color: #526488;
-  word-spacing: 5px;
-  padding-bottom: 15px;
-}
-
-.links {
-  padding-top: 15px;
-}
 </style>
