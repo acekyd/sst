@@ -1,9 +1,18 @@
 <template>
-  <div class="container">
-    <div>
+  <div>
+    <header>
       <h1 class="title">
-        simple-spot-tracker
+        Simple Spot Tracker.
       </h1>
+      <h4 class="subtitle">
+        A simple Binance spot tracker to give extra insight on positions you're HODLing.
+      </h4>
+      <h6 class="subtitle__description">
+          ** Currently supports only trades made with BUSD and USDT as base. <br />
+          Slightly off but close to the correct things.
+      </h6>
+    </header>
+    <div class="container">
       <div v-if="$strapi.user">
         Logged in
         <button class="button--green" @click="logout()">
@@ -282,5 +291,31 @@ export default {
 }
 </script>
 
-<style>
+<style lang="scss">
+header {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-direction: column;
+  height: 250px;
+  scroll-behavior: smooth;
+  background: #eee;
+}
+
+.title {
+  font-size: 40px;
+  margin:20px;
+}
+
+.subtitle {
+  text-align: center;
+  font-weight: 400;
+  font-size: 150%;
+  margin-bottom: 20px;
+
+  &__description {
+    text-align: center;
+    font-size: 12px;
+  }
+}
 </style>
