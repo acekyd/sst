@@ -10,7 +10,7 @@
           Logout
         </button>
         <form @submit="importBinance">
-          <input type="file" required class="form__input" accept=".xlsx, .csv" name="importBinance" id="importBinance" />
+          <input type="file" required class="form__input" accept=".xlsx, .csv" name="importBinance" id="importBinance" ref="importBinance" />
           <input type="submit" value="Import trades"/>
         </form>
         <v-data-table
@@ -68,6 +68,8 @@
 <script>
 import XLSX from 'xlsx';
 
+let pricesAPI = "https://api.cryptonator.com/api/ticker/";
+
 export default {
   data() {
     return {
@@ -86,12 +88,14 @@ export default {
             align: 'start',
             value: 'title',
           },
-          { text: 'No of Trades.', value: 'noOfTrades' },
           { text: 'Coin Amount', value: 'amount' },
           { text: 'Principal (USDT)', value: 'principal' },
           { text: 'Average Cost Basis (USDT)', value: 'coinCostBasis' },
+          { text: 'Current Price (USDT)', value: 'cPrice' },
+          { text: 'Difference (%)', value: 'difference' },
           { text: 'Total Buy (USDT)', value: 'totalBoughtCost' },
           { text: 'Total Sold (USDT)', value: 'totalSoldCost' },
+          { text: 'No of Trades.', value: 'noOfTrades' },
       ]
     };
   },
@@ -104,7 +108,6 @@ export default {
 
   computed: {
     user() {
-      console.log(this.$strapi.user);
       return this.$strapi.user;
     },
   },
@@ -121,7 +124,6 @@ export default {
           identifier: this.email,
           password: this.password,
         })
-        console.log(user)
         if (user !== null) {
           this.error = ''
           this.loggedIn = true;
@@ -144,7 +146,6 @@ export default {
           username: this.username,
           password: this.password,
         })
-        console.log(newUser)
         if (newUser !== null) {
           this.error = ''
           this.loggedIn = true;
@@ -167,15 +168,16 @@ export default {
       } else return [];
     },
 
-    processTradesData() {
-      // this.$set(this.tradeMarketsData, 'trade', [1]);
-      this.trades.forEach(trade => {
+    async processTradesData() {
+      const pricesArray = [];
+
+      for(const trade of this.trades) {
         if(this.tradeMarketsData[trade.coin] === undefined) {
+          pricesArray[trade.coin] = await this.$axios.$get(pricesAPI+trade.coin+"-usdt");
           this.$set(this.tradeMarketsData, trade.coin, []);
         }
         this.tradeMarketsData[trade.coin].push(trade);
-      });
-
+      }
       for (const [key, trades] of Object.entries(this.tradeMarketsData)) {
         let title = key;
         let amount = 0,
@@ -183,9 +185,10 @@ export default {
         totalBoughtCost = 0,
         totalSoldCost = 0,
         coinCostBasis = 0,
-        noOfTrades = trades.length;
+        noOfTrades = trades.length,
+        cPrice = parseFloat(pricesArray[title].ticker.price).toFixed(4),
+        difference = 0;
         trades.forEach(trade => {
-          console.log(title, trade);
           if(trade.type === "BUY") {
             amount += parseFloat(trade.amount);
             principal += parseFloat(trade.total);
@@ -200,24 +203,21 @@ export default {
           coinCostBasis = parseFloat(principal/amount).toFixed(4);
         })
 
-        this.tabularData.push({
-          title,
-          amount: amount.toFixed(4),
-          principal: principal.toFixed(4),
-          totalBoughtCost: totalBoughtCost.toFixed(4),
-          totalSoldCost: totalSoldCost.toFixed(4),
-          noOfTrades,
-          coinCostBasis,
-        });
+        difference = parseFloat(((cPrice-coinCostBasis)/coinCostBasis)*100).toFixed(2);
 
-        // this.$set(this.tabularData, title, {
-        //   title,
-        //   amount,
-        //   principal,
-        //   totalBoughtCost,
-        //   totalSoldCost,
-        //   noOfTrades,
-        // });
+        if(amount > 0 ) {
+          this.tabularData.push({
+            title,
+            amount: amount.toFixed(4),
+            principal: principal.toFixed(4),
+            totalBoughtCost: totalBoughtCost.toFixed(4),
+            totalSoldCost: totalSoldCost.toFixed(4),
+            noOfTrades,
+            coinCostBasis,
+            cPrice,
+            difference
+          });
+        }
       }
     },
 
@@ -274,7 +274,7 @@ export default {
           users_permissions_user: this.user,
         });
       });
-
+      this.$refs.importBinance.value = null;
       this.fetchTrades();
     }
 
