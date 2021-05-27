@@ -11,13 +11,14 @@
           ** Currently supports only trades made with BUSD and USDT as base. <br />
           Slightly off but close to the correct things.
       </h6>
+      <div v-if="$strapi.user">
+        <button class="button--grey logout-button" @click="logout()">
+          Logout
+        </button>
+      </div>
     </header>
     <div class="container">
       <div v-if="$strapi.user">
-        Logged in
-        <button class="button--green" @click="logout()">
-          Logout
-        </button>
         <form @submit="importBinance">
           <input type="file" required class="form__input" accept=".xlsx, .csv" name="importBinance" id="importBinance" ref="importBinance" />
           <input type="submit" value="Import trades"/>
@@ -27,7 +28,19 @@
           :items="tabularData"
           :items-per-page="20"
           class="elevation-1"
-        ></v-data-table>
+          @click:row="handleClick"
+          loading
+          loading-text="Loading... Please wait"
+        >
+          <template v-slot:item.difference="{ item }">
+            <v-chip
+              :color="getColor(item.difference)"
+              dark
+            >
+              {{ item.difference }}%
+            </v-chip>
+          </template>
+        </v-data-table>
       </div>
       <div v-else class="authentication">
         <h2 class="title--account">
@@ -290,7 +303,17 @@ export default {
       });
       this.$refs.importBinance.value = null;
       this.fetchTrades();
-    }
+    },
+
+    handleClick(value) {
+      console.log(value);
+    },
+
+    getColor(value) {
+        if (value > 0) return 'green'
+        else if (value < 0) return 'red'
+        else return 'green'
+    },
 
   }
 }
@@ -385,5 +408,19 @@ header {
   border-style: solid;
   margin: 5px;
   border-width: 0.5px;
+}
+
+.logout-button {
+  margin-top: 10px;
+}
+
+.green {
+    background-color: #4caf50!important;
+    border-color: #4caf50!important;
+}
+
+.red {
+  background-color: #f44336!important;
+  border-color: #f44336!important;
 }
 </style>
