@@ -29,45 +29,50 @@
           class="elevation-1"
         ></v-data-table>
       </div>
-      <div v-else class="authentication__forms">
-        <div v-show="error" class="form__errors">
+      <div v-else class="authentication">
+        <h2 class="title--account">
+          Let's get started.
+        </h2>
+        <div v-show="error" class="authentication__forms__errors">
           <p> Error(s): {{ error }} </p>
         </div>
-        <div class="login">
-          <h2>Login</h2>
-          <form @submit="login">
-            <div>
-              <input v-model="email" class="form__input" type="email" placeholder="email" />
-            </div>
-            <div>
-              <input v-model="password" class="p-3 my-5 border w-full" type="password" placeholder="password" />
-            </div>
-            <div>
-              <button class="button--green" type="submit">
-                Login
-              </button>
-            </div>
-          </form>
-        </div>
-        <div class="register">
-          <h2>Register</h2>
-          <form @submit="signup">
-            <div>
-              <input v-model="email" class="form__input" type="email" placeholder="email" />
-            </div>
-            <div>
-              <input v-model="username"  class="form__input" type="text" placeholder="username" />
-            </div>
-            <div>
-              <input v-model="password" class="form__input" type="password" placeholder="password"
-              />
-            </div>
-            <div>
-              <button class="button--green" type="submit">
-                Signup
-              </button>
-            </div>
-          </form>
+        <div class="authentication__forms">
+          <div class="authentication__forms--form login">
+            <p>Sign in with your details</p>
+            <form @submit="login">
+              <div>
+                <input v-model="email" class="form__input" type="email" placeholder="email" />
+              </div>
+              <div>
+                <input v-model="password" class="form__input" type="password" placeholder="password" />
+              </div>
+              <div>
+                <button class="button" type="submit">
+                  Login
+                </button>
+              </div>
+            </form>
+          </div>
+          <div class="authentication__forms--form register">
+            <p>Create an account to get started.</p>
+            <form @submit="signup">
+              <div>
+                <input v-model="email" class="form__input" type="email" placeholder="email" />
+              </div>
+              <div>
+                <input v-model="username"  class="form__input" type="text" placeholder="username" />
+              </div>
+              <div>
+                <input v-model="password" class="form__input" type="password" placeholder="password"
+                />
+              </div>
+              <div>
+                <button class="button" type="submit">
+                  Signup
+                </button>
+              </div>
+            </form>
+          </div>
         </div>
       </div>
     </div>
@@ -305,6 +310,12 @@ header {
 .title {
   font-size: 40px;
   margin:20px;
+
+  &--account {
+    font-size: 25px;
+    margin: 20px;
+    font-weight: 400;
+  }
 }
 
 .subtitle {
@@ -317,5 +328,62 @@ header {
     text-align: center;
     font-size: 12px;
   }
+}
+
+.authentication {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+
+  &__forms {
+    display: flex;
+    justify-content: center;
+
+    &__errors {
+      color: red;
+      font-weight: 600;
+      margin-bottom: 10px;
+    }
+
+    &--form {
+      width: 300px;
+
+      &:first-child {
+        margin-right: 20px;
+        border-right: 1px solid #ccc;
+      }
+
+      &:last-child {
+        margin-left: 20px;
+      }
+
+      p {
+        text-align: center;
+        font-size: 14px;
+        margin-bottom: 15px;
+      }
+
+      .button {
+        width: 90%;
+        margin-left: 5px;
+        margin-top: 10px;
+        display: inline-block;
+        border-radius: 4px;
+        border: 1px solid #35495e;
+        color: #35495e;
+        text-decoration: none;
+        padding: 10px 30px;
+      }
+    }
+  }
+}
+
+.form__input {
+  width: 90%;
+  padding: 10px;
+  box-sizing: border-box;
+  border-style: solid;
+  margin: 5px;
+  border-width: 0.5px;
 }
 </style>

@@ -57,6 +57,6 @@ html {
 
 .button--grey:hover {
   color: #fff;
-  background-color: #35495e;
+  background-color: #060607;
 }
 </style>
