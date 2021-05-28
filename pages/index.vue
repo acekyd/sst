@@ -12,7 +12,7 @@
           Slightly off but close to the correct things.
       </h6>
       <div class="action__buttons" v-if="$strapi.user">
-        <button class="button--green">
+        <button class="button--green" @click="show()">
           Add Trade(s)
         </button>
         <button class="button--grey" @click="logout()">
@@ -22,10 +22,6 @@
     </header>
     <div class="container">
       <div v-if="$strapi.user">
-        <!-- <form @submit="importBinance">
-          <input type="file" required class="form__input" accept=".xlsx, .csv" name="importBinance" id="importBinance" ref="importBinance" />
-          <input type="submit" value="Import trades"/>
-        </form> -->
         <v-data-table
           v-if="this.trades.length > 0"
           :headers="headers"
@@ -54,11 +50,11 @@
         <h2 class="title--account">
           Let's get started.
         </h2>
-        <div v-show="error" class="authentication__forms__errors">
+        <div v-show="error" class="forms__errors">
           <p> Error(s): {{ error }} </p>
         </div>
-        <div class="authentication__forms">
-          <div class="authentication__forms--form login">
+        <div class="forms">
+          <div class="forms--form login">
             <p>Sign in with your details</p>
             <form @submit="login">
               <div>
@@ -74,7 +70,7 @@
               </div>
             </form>
           </div>
-          <div class="authentication__forms--form register">
+          <div class="forms--form register">
             <p>Create an account to get started.</p>
             <form @submit="signup">
               <div>
@@ -97,6 +93,59 @@
         </div>
       </div>
     </div>
+    <modal name="addTradesModal" :height="500" :width="750">
+      <h2 class="title--account">
+          Add or Import Trade(s)
+        </h2>
+      <div class="forms forms--modal">
+        <div class="forms--form add__trade">
+          <p>Add a single trade</p>
+          <small>** Make this as accurate as you can for the math to add up.</small>
+          <div v-show="tradeError" class="forms__errors">
+            <p> Error(s): {{ tradeError }} </p>
+          </div>
+          <form @submit="addTrade">
+            <div>
+              <input v-model="trade.coin" class="form__input" type="text" placeholder="Coin e.g BNB" required />
+            </div>
+            <div>
+              <input v-model="trade.base" class="form__input" type="text" placeholder="Base e.g USDT or BUSD" required />
+            </div>
+            <div>
+              <select v-model="trade.type" class="form__input" required>
+                <option value="BUY">BUY</option>
+                <option value="SELL">SELL</option>
+              </select>
+            </div>
+            <div>
+              <input v-model="trade.amount" class="form__input" type="number" placeholder="Quantity e.g 0.25" required />
+            </div>
+            <div>
+              <input v-model="trade.price" class="form__input" type="number" placeholder="Coin Buy Price in $ e.g 500" required />
+            </div>
+            <div>
+              <input v-model="trade.total" class="form__input" type="number" placeholder="Total purchase in $ e.g 20" required />
+            </div>
+            <div>
+              <button class="button" type="submit">
+                Add trade
+              </button>
+            </div>
+          </form>
+        </div>
+        <div class="forms--form import__modal">
+          <div>
+            <p>Import your Trade History from Binance</p>
+            <em>Sign in to Binance > Orders > Trade History > Export Trade History.</em> <br/><br />
+            <small>Can only export 3 months at a time. So if you've been trading longer than 3 months, export multiple .xlsx files.</small>
+          </div> <br/> <br />
+          <form @submit="importBinance">
+            <input type="file" :disabled="isUploading" required class="form__input" accept=".xlsx" name="importBinance" id="importBinance" ref="importBinance" />
+            <input :disabled="isUploading" type="submit" class="button" value="Import trades"/>
+          </form>
+        </div>
+      </div>
+    </modal>
   </div>
 </template>
 
@@ -124,6 +173,17 @@ export default {
       importedData: [],
       tradeMarketsData: {},
       tabularData: [],
+      showAddTradeModal: false,
+      isUploading: false,
+      trade: {
+        coin: '',
+        base: '',
+        amount: 0,
+        type: 'BUY',
+        price: '',
+        total: 0,
+      },
+      tradeError: "",
       headers: [
           { text: 'Coin', align: 'start', value: 'title' },
           { text: 'Quantity',  value: 'amount' },
@@ -151,6 +211,12 @@ export default {
   },
 
   methods: {
+    show () {
+        this.$modal.show('addTradesModal');
+    },
+    hide () {
+        this.$modal.hide('addTradesModal');
+    },
     async login(e) {
       e.preventDefault();
       if(this.email === '' || this.password === '') {
@@ -277,6 +343,7 @@ export default {
 
     async importBinance(e) {
       e.preventDefault();
+      this.isUploading = true;
       let file = document.getElementById("importBinance").files[0];
       var reader = new FileReader();
       const self = this;
@@ -307,6 +374,41 @@ export default {
       }
     },
 
+    async addTrade(e) {
+      e.preventDefault();
+      if(this.trade.coin === '' || this.trade.base === '' || this.trade.amount <= 0 || this.trade.total <= 0) {
+        this.tradeError = "All fields are required!"
+        return;
+      }
+      try {
+        const trade = await this.$strapi.trades.create({
+          coin: this.trade.coin.toUpperCase(),
+          base: this.trade.base.toUpperCase(),
+          amount: this.trade.amount,
+          type: this.trade.type,
+          total: this.trade.total,
+          price: this.trade.price,
+          market: this.trade.coin.toUpperCase()+this.trade.base.toUpperCase(),
+          users_permissions_user: this.user,
+        })
+        if (trade !== null) {
+          this.tradeError = ''
+          this.hide();
+          this.trade = {
+            coin: '',
+            base: '',
+            amount: 0,
+            type: 'BUY',
+            price: '',
+            total: 0,
+          };
+          this.fetchTrades();
+        }
+      } catch (error) {
+        this.error = 'An error occurred while adding trade.'
+      }
+    },
+
     uploadData() {
 
       // let supportedCurrencies = ['USDT', 'BUSD'];
@@ -328,7 +430,9 @@ export default {
           users_permissions_user: this.user,
         });
       });
+      this.isUploading = false;
       this.$refs.importBinance.value = null;
+      this.hide();
       this.fetchTrades();
     },
 
@@ -341,6 +445,10 @@ export default {
         else if (value < 0) return 'red'
         else return 'green'
     },
+
+    toggleAddTrades() {
+      this.showAddTradeModal = !this.showAddTradeModal;
+    }
 
   }
 }
@@ -365,6 +473,7 @@ header {
     font-size: 25px;
     margin: 20px;
     font-weight: 400;
+    text-align: center;
   }
 }
 
@@ -384,46 +493,54 @@ header {
   display: flex;
   flex-direction: column;
   align-items: center;
+}
 
-  &__forms {
-    display: flex;
-    justify-content: center;
+.forms {
+  display: flex;
+  justify-content: center;
 
-    &__errors {
-      color: red;
-      font-weight: 600;
-      margin-bottom: 10px;
+  &--modal {
+    margin: 20px;
+
+    p {
+      font-weight: 500;
+    }
+  }
+
+  &__errors {
+    color: red;
+    font-weight: 600;
+    margin-bottom: 10px;
+  }
+
+  &--form {
+    width: 300px;
+
+    &:first-child {
+      margin-right: 20px;
+      border-right: 1px solid #ccc;
     }
 
-    &--form {
-      width: 300px;
+    &:last-child {
+      margin-left: 20px;
+    }
 
-      &:first-child {
-        margin-right: 20px;
-        border-right: 1px solid #ccc;
-      }
+    p {
+      text-align: center;
+      font-size: 14px;
+      margin-bottom: 15px;
+    }
 
-      &:last-child {
-        margin-left: 20px;
-      }
-
-      p {
-        text-align: center;
-        font-size: 14px;
-        margin-bottom: 15px;
-      }
-
-      .button {
-        width: 90%;
-        margin-left: 5px;
-        margin-top: 10px;
-        display: inline-block;
-        border-radius: 4px;
-        border: 1px solid #35495e;
-        color: #35495e;
-        text-decoration: none;
-        padding: 10px 30px;
-      }
+    .button {
+      width: 90%;
+      margin-left: 5px;
+      margin-top: 10px;
+      display: inline-block;
+      border-radius: 4px;
+      border: 1px solid #35495e;
+      color: #35495e;
+      text-decoration: none;
+      padding: 10px 30px;
     }
   }
 }
@@ -449,6 +566,20 @@ header {
 .red {
   background-color: #f44336!important;
   border-color: #f44336!important;
+}
+
+.import__modal {
+  text-align: center;
+}
+
+.add__trade small {
+  display: inline-block;
+  text-align: center;
+  margin-bottom: 10px;
+}
+
+.add__trade input[type=text] {
+  text-transform: uppercase;
 }
 
 .text-start {
