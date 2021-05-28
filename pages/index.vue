@@ -106,28 +106,31 @@
           </div>
           <form @submit="addTrade">
             <div>
-              <input v-model="trade.coin" class="form__input" type="text" placeholder="Coin e.g BNB" required />
+              <input :disabled="isAdding" v-model="trade.coin" class="form__input" type="text" placeholder="Coin e.g BNB" required />
             </div>
             <div>
-              <input v-model="trade.base" class="form__input" type="text" placeholder="Base e.g USDT or BUSD" required />
+              <select :disabled="isAdding" v-model="trade.base" class="form__input" required>
+                <option value="USDT">USDT</option>
+                <option value="BUSD">BUSD</option>
+              </select>
             </div>
             <div>
-              <select v-model="trade.type" class="form__input" required>
+              <select :disabled="isAdding" v-model="trade.type" class="form__input" required>
                 <option value="BUY">BUY</option>
                 <option value="SELL">SELL</option>
               </select>
             </div>
             <div>
-              <input v-model="trade.amount" class="form__input" type="number" placeholder="Quantity e.g 0.25" required />
+              <input :disabled="isAdding" v-model="trade.amount" class="form__input" type="number" placeholder="Quantity e.g 0.25" step="0.000001" required />
             </div>
             <div>
-              <input v-model="trade.price" class="form__input" type="number" placeholder="Coin Buy Price in $ e.g 500" required />
+              <input :disabled="isAdding" v-model="trade.price" class="form__input" type="number" step="0.000001" placeholder="Coin Buy Price in $ e.g 500" required />
             </div>
             <div>
-              <input v-model="trade.total" class="form__input" type="number" placeholder="Total purchase in $ e.g 20" required />
+              <input :disabled="isAdding" v-model="trade.total" step="0.001" class="form__input" type="number" placeholder="Total purchase in $ e.g 20" required />
             </div>
             <div>
-              <button class="button" type="submit">
+              <button :disabled="isAdding" class="button" type="submit">
                 Add trade
               </button>
             </div>
@@ -140,8 +143,8 @@
             <small>Can only export 3 months at a time. So if you've been trading longer than 3 months, export multiple .xlsx files.</small>
           </div> <br/> <br />
           <form @submit="importBinance">
-            <input type="file" :disabled="isUploading" required class="form__input" accept=".xlsx" name="importBinance" id="importBinance" ref="importBinance" />
-            <input :disabled="isUploading" type="submit" class="button" value="Import trades"/>
+            <input type="file" :disabled="isAdding" required class="form__input" accept=".xlsx" name="importBinance" id="importBinance" ref="importBinance" />
+            <input :disabled="isAdding" type="submit" class="button" value="Import trades"/>
           </form>
         </div>
       </div>
@@ -174,14 +177,14 @@ export default {
       tradeMarketsData: {},
       tabularData: [],
       showAddTradeModal: false,
-      isUploading: false,
+      isAdding: false,
       trade: {
         coin: '',
-        base: '',
-        amount: 0,
+        base: 'USDT',
+        amount: '',
         type: 'BUY',
         price: '',
-        total: 0,
+        total: '',
       },
       tradeError: "",
       headers: [
@@ -273,6 +276,9 @@ export default {
     },
 
     async processTradesData() {
+      // reset values to empty table
+      this.tradeMarketsData= {};
+      this.tabularData= [];
 
       for(const trade of this.trades) {
         if(this.tradeMarketsData[trade.coin] === undefined) {
@@ -343,7 +349,7 @@ export default {
 
     async importBinance(e) {
       e.preventDefault();
-      this.isUploading = true;
+      this.isAdding = true;
       let file = document.getElementById("importBinance").files[0];
       var reader = new FileReader();
       const self = this;
@@ -380,8 +386,9 @@ export default {
         this.tradeError = "All fields are required!"
         return;
       }
+      this.isAdding = true;
       try {
-        const trade = await this.$strapi.trades.create({
+        const trade = await this.$strapi.$trades.create({
           coin: this.trade.coin.toUpperCase(),
           base: this.trade.base.toUpperCase(),
           amount: this.trade.amount,
@@ -402,10 +409,14 @@ export default {
             price: '',
             total: 0,
           };
+          this.isAdding = false;
+          this.hide();
           this.fetchTrades();
         }
       } catch (error) {
-        this.error = 'An error occurred while adding trade.'
+        console.log("Error", error);
+        this.tradeError = 'An error occurred while adding trade.'
+        this.isAdding = false;
       }
     },
 
@@ -430,7 +441,7 @@ export default {
           users_permissions_user: this.user,
         });
       });
-      this.isUploading = false;
+      this.isAdding = false;
       this.$refs.importBinance.value = null;
       this.hide();
       this.fetchTrades();

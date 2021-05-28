@@ -44,7 +44,7 @@ export default {
   strapi: {
     // Options
     entities: ['trades'],
-    url: 'http://localhost:1337',
+    url: process.env.BASE_URL || 'http://localhost:1337',
   },
 
   // Axios module configuration: https://go.nuxtjs.dev/config-axios
