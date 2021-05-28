@@ -27,6 +27,7 @@
           <input type="submit" value="Import trades"/>
         </form> -->
         <v-data-table
+          v-if="this.trades.length > 0"
           :headers="headers"
           :items="tabularData"
           :items-per-page="20"
@@ -44,6 +45,10 @@
             </v-chip>
           </template>
         </v-data-table>
+
+        <div class="empty" v-else>
+          <p>You have no trades yet. Add trade(s) above.</p>
+        </div>
       </div>
       <div v-else class="authentication">
         <h2 class="title--account">
@@ -448,5 +453,10 @@ header {
 
 .text-start {
   text-align: start;
+}
+
+.empty {
+  margin-top: 30px;
+  text-align: center;
 }
 </style>
