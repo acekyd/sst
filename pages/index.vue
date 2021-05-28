@@ -11,8 +11,11 @@
           ** Currently supports only trades made with BUSD and USDT as base. <br />
           Slightly off but close to the correct things.
       </h6>
-      <div v-if="$strapi.user">
-        <button class="button--grey logout-button" @click="logout()">
+      <div class="action__buttons" v-if="$strapi.user">
+        <button class="button--green">
+          Add Trade(s)
+        </button>
+        <button class="button--grey" @click="logout()">
           Logout
         </button>
       </div>
@@ -96,6 +99,13 @@
 import XLSX from 'xlsx';
 
 let pricesAPI = "https://api.cryptonator.com/api/ticker/";
+const formatConfig = {
+  style: "currency",
+  currency: "USD", // CNY for Chinese Yen, EUR for Euro
+  minimumFractionDigits: 2,
+  currencyDisplay: "symbol",
+};
+const usdFormatter = new Intl.NumberFormat("en-US", formatConfig);
 
 export default {
   data() {
@@ -110,19 +120,15 @@ export default {
       tradeMarketsData: {},
       tabularData: [],
       headers: [
-          {
-            text: 'Market',
-            align: 'start',
-            value: 'title',
-          },
-          { text: 'Coin Amount', value: 'amount' },
-          { text: 'Principal (USDT)', value: 'principal' },
-          { text: 'Average Cost Basis (USDT)', value: 'coinCostBasis' },
-          { text: 'Current Price (USDT)', value: 'cPrice' },
-          { text: 'Difference (%)', value: 'difference' },
-          { text: 'Total Buy (USDT)', value: 'totalBoughtCost' },
-          { text: 'Total Sold (USDT)', value: 'totalSoldCost' },
-          { text: 'No of Trades.', value: 'noOfTrades' },
+          { text: 'Coin', align: 'start', value: 'title' },
+          { text: 'Quantity',  value: 'amount' },
+          { text: 'Principal (USDT)',  value: 'principal' },
+          { text: 'Average Cost Basis (USDT)',  value: 'coinCostBasis' },
+          { text: 'Current Price (USDT)',  value: 'cPrice' },
+          { text: 'Difference (%)',  value: 'difference' },
+          { text: 'Total Buy (USDT)',  value: 'totalBoughtCost' },
+          { text: 'Total Sold (USDT)',  value: 'totalSoldCost' },
+          { text: 'No of Trades.',  value: 'noOfTrades' },
       ]
     };
   },
@@ -200,7 +206,7 @@ export default {
 
       for(const trade of this.trades) {
         if(this.tradeMarketsData[trade.coin] === undefined) {
-          pricesArray[trade.coin] = await this.$axios.$get(pricesAPI+trade.coin+"-usdt");
+          pricesArray[trade.coin] = this.$axios.$get(pricesAPI+trade.coin+"-usdt");
           this.$set(this.tradeMarketsData, trade.coin, []);
         }
         this.tradeMarketsData[trade.coin].push(trade);
@@ -213,7 +219,7 @@ export default {
         totalSoldCost = 0,
         coinCostBasis = 0,
         noOfTrades = trades.length,
-        cPrice = parseFloat(pricesArray[title].ticker.price).toFixed(4),
+        cPrice = 0, // parseFloat(pricesArray[title].ticker.price).toFixed(4),
         difference = 0;
         trades.forEach(trade => {
           if(trade.type === "BUY") {
@@ -230,18 +236,18 @@ export default {
           coinCostBasis = parseFloat(principal/amount).toFixed(4);
         })
 
-        difference = parseFloat(((cPrice-coinCostBasis)/coinCostBasis)*100).toFixed(2);
+        // difference = parseFloat(((cPrice-coinCostBasis)/coinCostBasis)*100).toFixed(2);
 
         if(amount > 0 ) {
           this.tabularData.push({
             title,
-            amount: amount.toFixed(4),
-            principal: principal.toFixed(4),
-            totalBoughtCost: totalBoughtCost.toFixed(4),
-            totalSoldCost: totalSoldCost.toFixed(4),
+            amount: +amount.toFixed(4),
+            principal: usdFormatter.format(principal),
+            totalBoughtCost: usdFormatter.format(totalBoughtCost),
+            totalSoldCost: usdFormatter.format(totalSoldCost),
             noOfTrades,
-            coinCostBasis,
-            cPrice,
+            coinCostBasis: usdFormatter.format(coinCostBasis),
+            cPrice: +cPrice.toFixed(4),
             difference
           });
         }
@@ -410,8 +416,8 @@ header {
   border-width: 0.5px;
 }
 
-.logout-button {
-  margin-top: 10px;
+.action__buttons {
+  margin-top: 20px;
 }
 
 .green {
@@ -422,5 +428,9 @@ header {
 .red {
   background-color: #f44336!important;
   border-color: #f44336!important;
+}
+
+.text-start {
+    text-align: start;
 }
 </style>
