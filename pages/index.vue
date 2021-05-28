@@ -22,10 +22,10 @@
     </header>
     <div class="container">
       <div v-if="$strapi.user">
-        <form @submit="importBinance">
+        <!-- <form @submit="importBinance">
           <input type="file" required class="form__input" accept=".xlsx, .csv" name="importBinance" id="importBinance" ref="importBinance" />
           <input type="submit" value="Import trades"/>
-        </form>
+        </form> -->
         <v-data-table
           :headers="headers"
           :items="tabularData"
@@ -202,11 +202,9 @@ export default {
     },
 
     async processTradesData() {
-      const pricesArray = [];
 
       for(const trade of this.trades) {
         if(this.tradeMarketsData[trade.coin] === undefined) {
-          pricesArray[trade.coin] = this.$axios.$get(pricesAPI+trade.coin+"-usdt");
           this.$set(this.tradeMarketsData, trade.coin, []);
         }
         this.tradeMarketsData[trade.coin].push(trade);
@@ -219,7 +217,7 @@ export default {
         totalSoldCost = 0,
         coinCostBasis = 0,
         noOfTrades = trades.length,
-        cPrice = 0, // parseFloat(pricesArray[title].ticker.price).toFixed(4),
+        cPrice = "Loading...",
         difference = 0;
         trades.forEach(trade => {
           if(trade.type === "BUY") {
@@ -236,9 +234,7 @@ export default {
           coinCostBasis = parseFloat(principal/amount).toFixed(4);
         })
 
-        // difference = parseFloat(((cPrice-coinCostBasis)/coinCostBasis)*100).toFixed(2);
-
-        if(amount > 0 ) {
+        if(amount > 0.0000000001 ) {
           this.tabularData.push({
             title,
             amount: +amount.toFixed(4),
@@ -246,12 +242,32 @@ export default {
             totalBoughtCost: usdFormatter.format(totalBoughtCost),
             totalSoldCost: usdFormatter.format(totalSoldCost),
             noOfTrades,
-            coinCostBasis: usdFormatter.format(coinCostBasis),
-            cPrice: +cPrice.toFixed(4),
+            coinCostBasis,
+            cPrice,
             difference
           });
         }
       }
+
+      this.fetchAPIPrices();
+    },
+
+    async fetchAPIPrices() {
+      const pricesArray = [];
+      for(const data in this.tradeMarketsData) {
+        console.log(data);
+        // var tableIndex = this.tabularData.filter(function(x) { return x.titlw == data })[0];
+        pricesArray[data] = await this.$axios.$get(pricesAPI+data+"-usdt");
+      }
+
+      for(const item of this.tabularData) {
+        console.log("item", item);
+        item.cPrice = parseFloat(pricesArray[item.title].ticker.price).toFixed(4);
+        item.difference = parseFloat(((item.cPrice - item.coinCostBasis) / item.coinCostBasis)*100).toFixed(2);
+        item.cPrice = usdFormatter.format(item.cPrice);
+        item.coinCostBasis = usdFormatter.format(item.coinCostBasis);
+      }
+
     },
 
     async importBinance(e) {
@@ -431,6 +447,6 @@ header {
 }
 
 .text-start {
-    text-align: start;
+  text-align: start;
 }
 </style>

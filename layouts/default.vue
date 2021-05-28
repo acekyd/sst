@@ -59,4 +59,8 @@ html {
   color: #fff;
   background-color: #060607;
 }
+
+th, td, .text-start {
+  text-align: start !important;
+}
 </style>
