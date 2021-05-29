@@ -532,6 +532,12 @@ header {
   font-size: 3rem;
   margin:20px;
 
+  @media screen and (max-width: 600px) {
+    & {
+      font-size: 1.5rem;
+    }
+  }
+
   &--account {
     font-size: 25px;
     margin: 20px;
