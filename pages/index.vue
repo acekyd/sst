@@ -41,6 +41,9 @@
           <template v-slot:item.cPrice="{ item }">
               {{ item.cPrice | currency }}
           </template>
+          <template v-slot:item.cValue="{ item }">
+              {{ item.cValue | currency }}
+          </template>
           <template v-slot:item.difference="{ item }">
             <v-chip
               :color="getColor(item.difference)"
@@ -206,9 +209,10 @@ export default {
       headers: [
           { text: 'Coin', align: 'start', value: 'title' },
           { text: 'Quantity',  value: 'amount' },
-          { text: 'Principal (USDT)',  value: 'principal' },
           { text: 'Average Cost Basis (USDT)',  value: 'coinCostBasis' },
           { text: 'Current Price (USDT)',  value: 'cPrice' },
+          { text: 'Principal (USDT)',  value: 'principal' },
+          { text: 'Current Value (USDT)',  value: 'cValue' },
           { text: 'Difference (%)',  value: 'difference' },
           { text: 'Total Buy (USDT)',  value: 'totalBoughtCost' },
           { text: 'Total Sold (USDT)',  value: 'totalSoldCost' },
@@ -232,6 +236,7 @@ export default {
   filters: {
     currency: function (value) {
       if (!value) return;
+      if (value == '...') return '$...';
       return usdFormatter.format(value);
     }
   },
@@ -318,6 +323,7 @@ export default {
         coinCostBasis = 0,
         noOfTrades = trades.length,
         cPrice = "...",
+        cValue = "...",
         difference = 0;
         trades.forEach(trade => {
           if(trade.type === "BUY") {
@@ -344,6 +350,7 @@ export default {
             noOfTrades,
             coinCostBasis,
             cPrice,
+            cValue,
             difference
           });
         }
@@ -361,6 +368,7 @@ export default {
 
       for(const item of this.tabularData) {
         item.cPrice = parseFloat(pricesArray[item.title].ticker.price).toFixed(4);
+        item.cValue = item.cPrice * item.amount;
         item.difference = parseFloat(((item.cPrice - item.coinCostBasis) / item.coinCostBasis)*100).toFixed(2);
 
       }
