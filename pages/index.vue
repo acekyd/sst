@@ -502,9 +502,29 @@ header {
   justify-content: center;
   align-items: center;
   flex-direction: column;
-  height: 250px;
+  min-height: 250px;
   scroll-behavior: smooth;
   background: #eee;
+  padding: 5px;
+}
+
+.action__buttons {
+  margin-top: 20px;
+  margin-bottom: 20px;
+  display: flex;
+  justify-content: center;
+}
+
+.title {
+  font-size: 3rem;
+  margin:20px;
+
+  &--account {
+    font-size: 25px;
+    margin: 20px;
+    font-weight: 400;
+    text-align: center;
+  }
 }
 
 footer {
@@ -516,17 +536,7 @@ footer {
   background: #eee;
 }
 
-.title {
-  font-size: 40px;
-  margin:20px;
 
-  &--account {
-    font-size: 25px;
-    margin: 20px;
-    font-weight: 400;
-    text-align: center;
-  }
-}
 
 .subtitle {
   text-align: center;
@@ -603,10 +613,6 @@ footer {
   border-style: solid;
   margin: 5px;
   border-width: 0.5px;
-}
-
-.action__buttons {
-  margin-top: 20px;
 }
 
 .green {
