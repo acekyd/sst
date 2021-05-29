@@ -213,6 +213,7 @@ export default {
       tabularData: [],
       showAddTradeModal: false,
       isAdding: false,
+      sortBy: 'principal',
       trade: {
         coin: '',
         base: 'USDT',
@@ -223,7 +224,7 @@ export default {
       },
       tradeError: "",
       headers: [
-          { text: 'Coin', align: 'start', value: 'title' },
+          { text: 'Coin', align: 'start', value: 'title', sortable: false },
           { text: 'Quantity',  value: 'amount' },
           { text: 'Average Cost Basis (USDT)',  value: 'coinCostBasis' },
           { text: 'Current Price (USDT)',  value: 'cPrice' },
