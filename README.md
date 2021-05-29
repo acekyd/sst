@@ -1,5 +1,11 @@
 # simple-spot-tracker
 
+A simple Binance spot tracker to give extra insight on positions you're HODLing.
+
+** Currently supports only trades made with BUSD and USDT as base. Slightly off but close to the correct things.
+
+Open to PRs in line with the current direction of the project.
+
 ## Build Setup
 
 ```bash
