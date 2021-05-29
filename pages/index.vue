@@ -117,7 +117,14 @@
     <footer>
       Built with 💰 by Ace! ♠️ → &nbsp; <a href="https://github.com/acekyd/sst/" target="_blank"> GitHub</a>
     </footer>
-    <modal name="addTradesModal" :height="500" :width="750">
+    <modal name="addTradesModal"
+    :min-width="200"
+    :min-height="200"
+    :scrollable="true"
+    :reset="true"
+    width="60%"
+    height="auto"
+    >
       <h2 class="title--account">
           Add or Import Trade(s)
         </h2>
@@ -160,6 +167,9 @@
             </div>
           </form>
         </div>
+        <p class="xor">
+          OR
+        </p>
         <div class="forms--form import__modal">
           <div>
             <p>Import your Trade History from Binance</p>
@@ -596,7 +606,7 @@ footer {
   }
 
   &--form {
-    width: 300px;
+    max-width: 300px;
     margin-bottom: 10px;
 
 
