@@ -32,6 +32,15 @@
           loading
           loading-text="Loading... Please wait"
         >
+          <template v-slot:item.principal="{ item }">
+              {{ item.principal | currency }}
+          </template>
+          <template v-slot:item.coinCostBasis="{ item }">
+              {{ item.coinCostBasis | currency }}
+          </template>
+          <template v-slot:item.cPrice="{ item }">
+              {{ item.cPrice | currency }}
+          </template>
           <template v-slot:item.difference="{ item }">
             <v-chip
               :color="getColor(item.difference)"
@@ -39,6 +48,12 @@
             >
               {{ item.difference }}%
             </v-chip>
+          </template>
+          <template v-slot:item.totalBoughtCost="{ item }">
+              {{ item.totalBoughtCost | currency }}
+          </template>
+          <template v-slot:item.totalSoldCost="{ item }">
+              {{ item.totalSoldCost | currency }}
           </template>
         </v-data-table>
 
@@ -159,8 +174,9 @@ let pricesAPI = "https://api.cryptonator.com/api/ticker/";
 const formatConfig = {
   style: "currency",
   currency: "USD", // CNY for Chinese Yen, EUR for Euro
-  minimumFractionDigits: 2,
   currencyDisplay: "symbol",
+  minimumFractionDigits: 2,
+  maximumFractionDigits: 2,
 };
 const usdFormatter = new Intl.NumberFormat("en-US", formatConfig);
 
@@ -211,6 +227,13 @@ export default {
     user() {
       return this.$strapi.user;
     },
+  },
+
+  filters: {
+    currency: function (value) {
+      if (!value) return;
+      return usdFormatter.format(value);
+    }
   },
 
   methods: {
@@ -294,7 +317,7 @@ export default {
         totalSoldCost = 0,
         coinCostBasis = 0,
         noOfTrades = trades.length,
-        cPrice = "Loading...",
+        cPrice = "...",
         difference = 0;
         trades.forEach(trade => {
           if(trade.type === "BUY") {
@@ -315,9 +338,9 @@ export default {
           this.tabularData.push({
             title,
             amount: +amount.toFixed(4),
-            principal: usdFormatter.format(principal),
-            totalBoughtCost: usdFormatter.format(totalBoughtCost),
-            totalSoldCost: usdFormatter.format(totalSoldCost),
+            principal,
+            totalBoughtCost,
+            totalSoldCost,
             noOfTrades,
             coinCostBasis,
             cPrice,
@@ -333,16 +356,13 @@ export default {
       const pricesArray = [];
       for(const data in this.tradeMarketsData) {
         console.log(data);
-        // var tableIndex = this.tabularData.filter(function(x) { return x.titlw == data })[0];
         pricesArray[data] = await this.$axios.$get(pricesAPI+data+"-usdt");
       }
 
       for(const item of this.tabularData) {
-        console.log("item", item);
         item.cPrice = parseFloat(pricesArray[item.title].ticker.price).toFixed(4);
         item.difference = parseFloat(((item.cPrice - item.coinCostBasis) / item.coinCostBasis)*100).toFixed(2);
-        item.cPrice = usdFormatter.format(item.cPrice);
-        item.coinCostBasis = usdFormatter.format(item.coinCostBasis);
+
       }
 
     },
@@ -403,11 +423,11 @@ export default {
           this.hide();
           this.trade = {
             coin: '',
-            base: '',
-            amount: 0,
+            base: 'USDT',
+            amount: '',
             type: 'BUY',
             price: '',
-            total: 0,
+            total: '',
           };
           this.isAdding = false;
           this.hide();
