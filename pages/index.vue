@@ -88,6 +88,9 @@
               </div>
             </form>
           </div>
+          <p class="xor">
+            OR
+          </p>
           <div class="forms--form register">
             <p>Create an account to get started.</p>
             <form @submit="signup">
@@ -560,6 +563,12 @@ footer {
   display: flex;
   justify-content: center;
 
+  @media screen and (max-width: 600px) {
+    & {
+      flex-direction: column;
+    }
+  }
+
   &--modal {
     margin: 20px;
 
@@ -574,16 +583,39 @@ footer {
     margin-bottom: 10px;
   }
 
+  .xor {
+    text-align: center;
+    margin: 20px 0;
+    font-size: 1.5rem;
+  }
+
+  @media screen and (min-width: 600px) {
+      .xor {
+        display: none;
+      }
+  }
+
   &--form {
     width: 300px;
+    margin-bottom: 10px;
 
-    &:first-child {
-      margin-right: 20px;
-      border-right: 1px solid #ccc;
-    }
 
-    &:last-child {
-      margin-left: 20px;
+    @media screen and (min-width: 600px) {
+      & {
+        margin-bottom: 0;
+      }
+      &:first-child {
+        margin-right: 20px;
+        border-right: 1px solid #ccc;
+      }
+
+      .xor {
+        display: none;
+      }
+
+      &:last-child {
+        margin-left: 20px;
+      }
     }
 
     p {
