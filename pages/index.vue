@@ -111,6 +111,9 @@
         </div>
       </div>
     </div>
+    <footer>
+      Built with 💰 by Ace! ♠️ → &nbsp; <a href="https://github.com/acekyd/sst/" target="_blank"> GitHub</a>
+    </footer>
     <modal name="addTradesModal" :height="500" :width="750">
       <h2 class="title--account">
           Add or Import Trade(s)
@@ -501,6 +504,15 @@ header {
   flex-direction: column;
   height: 250px;
   scroll-behavior: smooth;
+  background: #eee;
+}
+
+footer {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 50px;
+  line-height: 50px;
   background: #eee;
 }
 
