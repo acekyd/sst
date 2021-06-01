@@ -76,13 +76,13 @@
             <p>Sign in with your details</p>
             <form @submit="login">
               <div>
-                <input v-model="email" class="form__input" type="email" placeholder="email" />
+                <input v-model="email" class="form__input" type="email" placeholder="email" :disabled="isLoading" />
               </div>
               <div>
-                <input v-model="password" class="form__input" type="password" placeholder="password" />
+                <input v-model="password" class="form__input" type="password" placeholder="password" :disabled="isLoading" />
               </div>
               <div>
-                <button class="button" type="submit">
+                <button class="button" type="submit" :disabled="isLoading">
                   Login
                 </button>
               </div>
@@ -95,17 +95,17 @@
             <p>Create an account to get started.</p>
             <form @submit="signup">
               <div>
-                <input v-model="email" class="form__input" type="email" placeholder="email" />
+                <input v-model="email" class="form__input" type="email" placeholder="email" :disabled="isLoading" />
               </div>
               <div>
-                <input v-model="username"  class="form__input" type="text" placeholder="username" />
+                <input v-model="username"  class="form__input" type="text" placeholder="username" :disabled="isLoading" />
               </div>
               <div>
-                <input v-model="password" class="form__input" type="password" placeholder="password"
+                <input v-model="password" class="form__input" type="password" placeholder="password" :disabled="isLoading"
                 />
               </div>
               <div>
-                <button class="button" type="submit">
+                <button class="button" type="submit" :disabled="isLoading">
                   Signup
                 </button>
               </div>
@@ -173,8 +173,8 @@
         <div class="forms--form import__modal">
           <div>
             <p>Import your Trade History from Binance</p>
-            <em>Sign in to Binance > Orders > Trade History > Export Trade History.</em> <br/><br />
-            <small>Can only export 3 months at a time. So if you've been trading longer than 3 months, export multiple .xlsx files.</small>
+            <em>Sign in to Binance > Orders > Spot Order > Trade History > Export Trade History.</em> <br/><br />
+            <small>Can only export 3 months at a time. So if you've been trading longer than 3 months, export multiple `Export Trade History.xlsx` files.</small>
           </div> <br/> <br />
           <form @submit="importBinance">
             <input type="file" :disabled="isAdding" required class="form__input" accept=".xlsx" name="importBinance" id="importBinance" ref="importBinance" />
@@ -213,6 +213,7 @@ export default {
       tabularData: [],
       showAddTradeModal: false,
       isAdding: false,
+      isLoading: false,
       sortBy: 'principal',
       trade: {
         coin: '',
@@ -271,6 +272,7 @@ export default {
         this.error = "All fields are required!"
         return;
       }
+      this.isLoading = true;
       try {
         const user = await this.$strapi.login({
           identifier: this.email,
@@ -281,8 +283,10 @@ export default {
           this.loggedIn = true;
           this.fetchTrades();
         }
+        this.isLoading = false;
       } catch (error) {
-        this.error = 'Error in login credentials'
+        this.error = 'Error in login credentials';
+        this.isLoading = false;
       }
     },
 
@@ -292,6 +296,7 @@ export default {
         this.error = "All fields are required!"
         return;
       }
+      this.isLoading = true;
       try {
         const newUser = await this.$strapi.register({
           email: this.email,
@@ -303,8 +308,10 @@ export default {
           this.loggedIn = true;
           this.fetchTrades();
         }
+        this.isLoading = false;
       } catch (error) {
-        this.error = error.message
+        this.error = error.message;
+        this.isLoading = false;
       }
     },
 
