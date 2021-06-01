@@ -232,8 +232,8 @@ export default {
           { text: 'Principal (USDT)',  value: 'principal' },
           { text: 'Current Value (USDT)',  value: 'cValue' },
           { text: 'Difference (%)',  value: 'difference' },
-          { text: 'Total Buy (USDT)',  value: 'totalBoughtCost' },
-          { text: 'Total Sold (USDT)',  value: 'totalSoldCost' },
+          // { text: 'Total Buy (USDT)',  value: 'totalBoughtCost' },
+          // { text: 'Total Sold (USDT)',  value: 'totalSoldCost' },
           { text: 'No of Trades.',  value: 'noOfTrades' },
       ]
     };
