@@ -152,13 +152,13 @@
               </select>
             </div>
             <div>
-              <input :disabled="isAdding" v-model="trade.amount" class="form__input" type="number" placeholder="Quantity e.g 0.25" step="0.000001" required />
+              <input :disabled="isAdding" v-model="trade.amount" class="form__input" type="number" placeholder="Quantity e.g 0.25" step="0.0000001" required />
             </div>
             <div>
-              <input :disabled="isAdding" v-model="trade.price" class="form__input" type="number" step="0.000001" placeholder="Coin Buy Price in $ e.g 500" required />
+              <input :disabled="isAdding" v-model="trade.price" class="form__input" type="number" step="0.0000001" placeholder="Coin Price in $ e.g 500" required />
             </div>
             <div>
-              <input :disabled="isAdding" v-model="trade.total" step="0.001" class="form__input" type="number" placeholder="Total purchase in $ e.g 20" required />
+              <input :disabled="isAdding" v-model="trade.total" step="0.0001" class="form__input" type="number" placeholder="Total value in $ e.g 20" required />
             </div>
             <div>
               <button :disabled="isAdding" class="button" type="submit">
@@ -195,7 +195,7 @@ const formatConfig = {
   currency: "USD", // CNY for Chinese Yen, EUR for Euro
   currencyDisplay: "symbol",
   minimumFractionDigits: 2,
-  maximumFractionDigits: 2,
+  maximumFractionDigits: 3,
 };
 const usdFormatter = new Intl.NumberFormat("en-US", formatConfig);
 
