@@ -323,6 +323,7 @@ export default {
       if(this.user) {
         const trades = await this.$strapi.$trades.find({'users_permissions_user.username': this.user.username });
         this.trades = trades;
+        console.log("All my trades", trades);
         this.processTradesData();
       } else return [];
     },
