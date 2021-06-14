@@ -338,6 +338,7 @@ export default {
         }
         this.tradeMarketsData[trade.coin].push(trade);
       }
+      console.log("Stuff", this.tradeMarketsData);
       for (const [key, trades] of Object.entries(this.tradeMarketsData)) {
         let title = key;
         let amount = 0,
@@ -349,6 +350,7 @@ export default {
         cPrice = "...",
         cValue = "...",
         difference = 0;
+        console.log("Trades", title, trades);
         trades.forEach(trade => {
           if(trade.type === "BUY") {
             amount += parseFloat(trade.amount);
