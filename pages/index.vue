@@ -321,7 +321,7 @@ export default {
 
     async fetchTrades() {
       if(this.user) {
-        const trades = await this.$strapi.$trades.find({'users_permissions_user.username': this.user.username });
+        const trades = await this.$strapi.$trades.find({'users_permissions_user.username': this.user.username, _limit: -1 });
         this.trades = trades;
         console.log("All my trades", trades);
         this.processTradesData();
