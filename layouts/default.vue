@@ -35,29 +35,21 @@ html {
   display: inline-block;
   border-radius: 4px;
   border: 1px solid #3b8070;
-  color: #3b8070;
+  background-color: #3b8070;
+  color: #FFF;
   text-decoration: none;
   padding: 10px 30px;
-}
-
-.button--green:hover {
-  color: #fff;
-  background-color: #3b8070;
 }
 
 .button--grey {
   display: inline-block;
   border-radius: 4px;
   border: 1px solid #35495e;
-  color: #35495e;
+  background-color: #060607;
+  color: #FFF;
   text-decoration: none;
   padding: 10px 30px;
   margin-left: 15px;
-}
-
-.button--grey:hover {
-  color: #fff;
-  background-color: #060607;
 }
 
 th, td, .text-start {

@@ -551,9 +551,9 @@ header {
   }
 
   &--account {
-    font-size: 25px;
+    font-size: 28px;
     margin: 20px;
-    font-weight: 400;
+    font-weight: 600;
     text-align: center;
   }
 }
@@ -593,6 +593,7 @@ footer {
 .forms {
   display: flex;
   justify-content: center;
+  width: 100%;
 
   @media screen and (max-width: 600px) {
     & {
@@ -662,7 +663,8 @@ footer {
       display: inline-block;
       border-radius: 4px;
       border: 1px solid #35495e;
-      color: #35495e;
+      background: #38517E;
+      color: #FFF;
       text-decoration: none;
       padding: 10px 30px;
     }
@@ -672,6 +674,7 @@ footer {
 .form__input {
   width: 90%;
   padding: 10px;
+  border-radius: 5px;
   box-sizing: border-box;
   border-style: solid;
   margin: 5px;
