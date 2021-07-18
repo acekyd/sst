@@ -567,8 +567,9 @@ footer {
   width: 100%;
   line-height: 50px;
   background: #eee;
-  position:absolute;
+  position: sticky;
   bottom: 0;
+  margin-top: 50px;
 }
 
 
