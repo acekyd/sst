@@ -543,6 +543,7 @@ header {
 .title {
   font-size: 3rem;
   margin:20px;
+  text-align: center;
 
   @media screen and (max-width: 600px) {
     & {
@@ -598,6 +599,7 @@ footer {
   @media screen and (max-width: 600px) {
     & {
       flex-direction: column;
+      align-items: center;
     }
   }
 
@@ -628,13 +630,13 @@ footer {
   }
 
   &--form {
+    max-width: 300px;
     margin-bottom: 10px;
 
 
     @media screen and (min-width: 600px) {
       & {
         margin-bottom: 0;
-        max-width: 300px;
       }
       &:first-child {
         padding-right: 20px;
@@ -649,6 +651,14 @@ footer {
         margin-left: 20px;
       }
     }
+
+    @media screen and (max-width: 600px) {
+      & {
+        position: relative;
+        width: 90%;
+      }
+    }
+
 
     p {
       text-align: center;
