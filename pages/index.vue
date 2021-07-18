@@ -2,10 +2,10 @@
   <div>
     <header>
       <h1 class="title">
-        Simple Spot Tracker.
+        A simple Binance spot tracker.
       </h1>
       <h4 class="subtitle">
-        A simple Binance spot tracker to give extra insight on positions you're HODLing.
+        Obtain extra insight on positions you're HODLing.
       </h4>
       <h6 class="subtitle__description">
           ** Currently supports only trades made with BUSD and USDT as base. <br />
@@ -528,8 +528,9 @@ header {
   flex-direction: column;
   min-height: 250px;
   scroll-behavior: smooth;
-  background: #eee;
+  background: #38517E;
   padding: 5px;
+  color: #fff;
 }
 
 .action__buttons {
@@ -562,8 +563,11 @@ footer {
   justify-content: center;
   align-items: center;
   height: 50px;
+  width: 100%;
   line-height: 50px;
   background: #eee;
+  position:absolute;
+  bottom: 0;
 }
 
 
