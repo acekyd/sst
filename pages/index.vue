@@ -628,16 +628,16 @@ footer {
   }
 
   &--form {
-    max-width: 300px;
     margin-bottom: 10px;
 
 
     @media screen and (min-width: 600px) {
       & {
         margin-bottom: 0;
+        max-width: 300px;
       }
       &:first-child {
-        margin-right: 20px;
+        padding-right: 20px;
         border-right: 1px solid #ccc;
       }
 
