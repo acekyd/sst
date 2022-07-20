@@ -189,7 +189,7 @@
 <script>
 import XLSX from 'xlsx';
 
-let pricesAPI = "https://api.cryptonator.com/api/ticker/";
+let pricesAPI = "https://api.kucoin.com/api/v1/market/orderbook/level1?symbol=";
 const formatConfig = {
   style: "currency",
   currency: "USD", // CNY for Chinese Yen, EUR for Euro
@@ -390,11 +390,11 @@ export default {
       const pricesArray = [];
       for(const data in this.tradeMarketsData) {
         console.log(data);
-        pricesArray[data] = await this.$axios.$get(pricesAPI+data+"-usdt");
+        pricesArray[data] = await this.$axios.$get(pricesAPI+data+"-USDT");
       }
 
       for(const item of this.tabularData) {
-        item.cPrice = parseFloat(pricesArray[item.title].ticker.price).toFixed(4);
+        item.cPrice = parseFloat(pricesArray[item.title].data.price).toFixed(4);
         item.cValue = item.cPrice * item.amount;
         item.difference = parseFloat(((item.cPrice - item.coinCostBasis) / item.coinCostBasis)*100).toFixed(2);
 
